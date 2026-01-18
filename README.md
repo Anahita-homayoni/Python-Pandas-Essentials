@@ -941,3 +941,209 @@ ascending=[True, False]: Specify sort order for each column individually.
 
 ✅ Tip: Always check the first few rows with oo.head() or oo.tail() to confirm your operations worked correctly.
 
+
+
+
+
+
+Data Types, Memory, Functions, and Indexing
+
+This tutorial covers how to work efficiently with data types, categorical data, memory optimization, Python functions, indexes, and best practices in pandas.
+
+1. Working with Data Types (dtype)
+import pandas as pd
+from pathlib import Path
+
+filename = "olympics_1896_2004.csv"
+
+oo = pd.read_csv(filename, skiprows=5).drop('Position', axis=1)
+oo.sample(3)
+
+
+Check current dtypes of each column:
+
+oo.dtypes
+
+
+Convert columns to category to save memory and improve performance:
+
+oo.Medal = oo.Medal.astype("category")
+oo.Gender = oo.Gender.astype("category")
+oo['Event Gender'] = oo['Event Gender'].astype("category")
+oo.dtypes
+
+
+Ordered categorical data for sorting purposes:
+
+medal_order = ["Bronze", "Silver", "Gold"]
+oo.Medal = pd.Categorical(oo.Medal, categories=medal_order, ordered=True)
+
+
+Sorting by categorical column:
+
+oo.sort_values(by=["Year", "Event", "Medal"], ascending=[True, True, False]).head(7)
+
+2. Memory Usage of Different dtypes
+
+Compare memory usage between object and category:
+
+df = pd.read_csv(filename, skiprows=5)  # Original object dtype
+
+print("Medal memory with category:", oo.Medal.memory_usage(deep=True))
+print("Medal memory with object:", df.Medal.memory_usage(deep=True))
+print("Memory reduction:", oo.Medal.memory_usage(deep=True) / df.Medal.memory_usage(deep=True))
+
+
+Convert string-like columns to string dtype for consistency:
+
+oo.City = oo.City.astype("string")
+oo.Sport = oo.Sport.astype("string")
+oo.Discipline = oo.Discipline.astype("string")
+oo["Athlete Name"] = oo["Athlete Name"].astype("string")
+oo.NOC = oo.NOC.astype("string")
+oo.Event = oo.Event.astype("string")
+oo.dtypes
+
+3. Defining Dtypes When Reading a File
+ordered_medals = pd.api.types.CategoricalDtype(categories=["Bronze", "Silver", "Gold"], ordered=True)
+
+dtype_mapper = {
+    "Year": "int64",
+    "City": "string",
+    "Sport": "string",
+    "Discipline": "string",
+    "Athlete Name": "string",
+    "NOC": "string",
+    "Gender": "category",
+    "Event": "string",
+    "Event_gender": "category",
+    "Medal": ordered_medals
+}
+
+oo = pd.read_csv(filename, skiprows=5, dtype=dtype_mapper).drop('Position', axis=1)
+oo["Event Gender"] = oo["Event Gender"].astype("category")
+oo.dtypes
+
+
+Explanation:
+
+Pre-defining dtypes ensures consistent memory usage and avoids conversions later.
+
+CategoricalDtype allows specifying order for sorting.
+
+4. Using Python Functions for Data Preprocessing
+
+Simple function to load data:
+
+def show_df(filename="olympics_1896_2004.csv"):
+    """Read CSV and return dataframe"""
+    return pd.read_csv(filename, skiprows=5)
+
+df = show_df()
+
+
+Advanced preprocessing function with dtypes:
+
+def preprocess(filename="olympics_1896_2004.csv"):
+    """Load and transform dataframe with correct dtypes"""
+    ordered_medals = pd.api.types.CategoricalDtype(categories=["Bronze", "Silver", "Gold"], ordered=True)
+    dtype_mapper = {
+        "Year": "int64",
+        "City": "string",
+        "Sport": "string",
+        "Discipline": "string",
+        "Athlete Name": "string",
+        "NOC": "string",
+        "Gender": "category",
+        "Event": "string",
+        "Event_gender": "category",
+        "Medal": ordered_medals
+    }
+    df = pd.read_csv(filename, skiprows=5, dtype=dtype_mapper).drop('Position', axis=1)
+    df["Event Gender"] = df["Event Gender"].astype("category")
+    return df
+
+oo = preprocess()
+oo.sample(3)
+
+
+Explanation:
+
+Wrapping preprocessing in a function allows reusable, clean code.
+
+Always transform the DataFrame without modifying the original CSV.
+
+5. Working with Indexes
+
+View default index and columns:
+
+oo.index
+oo.columns
+oo.shape
+
+
+Set a column as index:
+
+oo = oo.set_index("Athlete Name")
+oo.loc["LEWIS, Carl", ["Year", "Event", "Medal"]]
+
+
+Reset index back to default:
+
+oo = oo.reset_index()
+oo.head(3)
+
+
+Access rows by position using .iloc:
+
+oo.iloc[0, 0]   # First row, first column
+oo.iloc[0, :]   # First row, all columns
+
+
+Sorting index:
+
+oo = oo.sort_index()
+oo.head(3)
+
+6. Best Practices in Pandas
+
+Get immediate feedback:
+
+oo.sample(3)
+
+
+Search for methods:
+
+import re
+search_string = "excel"
+[func for func in dir(pd) if re.search(rf"{search_string}", func, re.IGNORECASE)]
+
+
+Check documentation in IDE:
+
+pd.read_excel?
+
+
+Use assert to validate data:
+
+assert(oo[(oo.Year < 1896) & (oo.Year > 2004)].shape[0] == 0)
+print("All tests passed")
+
+
+Chain operations instead of using inplace=True:
+
+oo = (pd.read_csv(filename, skiprows=5)
+      .drop('Position', axis=1)
+      .sort_values(['Year', 'Athlete Name'])
+      .tail(3))
+
+
+Filter using isin:
+
+years_of_interest = [1972, 1980, 1984, 1992, 2000, 2004]
+oo[oo.Year.isin(years_of_interest)]
+oo[~oo.Year.isin(years_of_interest)]
+
+
+This covers data types, memory optimization, functions, indexing, and best practices in pandas.
+
