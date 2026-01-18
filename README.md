@@ -824,3 +824,120 @@ Renaming columns improves clarity and usability
 
 <img width="997" height="532" alt="image" src="https://github.com/user-attachments/assets/a8a99080-4bc1-4952-8619-cc0694c45f30" />
 
+Filtering, String Methods, and Sorting
+
+This tutorial shows how to work with Pandas to filter rows based on conditions, manipulate strings, and sort data in a DataFrame. We use the dataset olympics_1896_2004.csv.
+
+1. Setup and Loading Data
+!pip install --quiet pandas==2.0.2
+
+import pandas as pd
+from pathlib import Path
+
+# Download the dataset if not already present
+if not Path("olympics_1896_2004.csv").exists():
+    !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_1896_2004.csv
+
+filename = "olympics_1896_2004.csv"
+
+# Load the CSV, skip first 5 rows, and remove 'Position' column
+oo = pd.read_csv(filename, skiprows=5).drop('Position', axis=1)
+
+
+Explanation:
+
+pd.read_csv(filename, skiprows=5): Reads the CSV but skips first 5 rows (often headers or notes).
+
+.drop('Position', axis=1): Removes the column named "Position".
+
+2. Filtering Rows for a Single Condition
+# Filter all rows where Year is 1896
+oo[oo.Year == 1896]
+
+
+Explanation:
+
+oo.Year == 1896 creates a Boolean Series (True/False).
+
+oo[...] selects only rows where the condition is True.
+
+Other examples:
+
+oo[oo.Year < 1896]    # Rows before 1896
+oo[oo.Year <= 1896]   # Rows in or before 1896
+
+3. Filtering Rows for Multiple Conditions
+# Rows where Year is 1896 OR 2004
+oo[(oo.Year == 1896) | (oo.Year == 2004)]
+
+# Rows where City is Athens AND Year is 2004
+oo[(oo.City == 'Athens') & (oo.Year == 2004)]
+
+# Rows where City is Athens AND Year is NOT 1896
+oo[(oo.City == 'Athens') & ~(oo.Year == 1896)]
+
+
+Explanation:
+
+| = logical OR
+
+& = logical AND
+
+~ = logical NOT
+
+Example with more columns:
+
+first_men_100m = oo[(oo.Year == 1896) & (oo.Gender == 'Men') & (oo.Event == '100m')]
+first_men_100m[["Year", "Athlete Name", "NOC", "Event", "Medal"]]
+
+4. Using String Methods
+# Convert all athlete names to lowercase
+oo["Athlete Name"].str.lower()
+
+# Capitalize event names
+oo.Event = oo.Event.str.capitalize()
+oo.Event.unique()
+
+# Filter athletes containing "Latynina"
+oo[oo["Athlete Name"].str.contains("Latynina")]
+
+# Convert city names to uppercase
+oo.City = oo.City.str.upper()
+oo.City.unique()
+
+
+Explanation:
+
+.str.lower(), .str.upper(), .str.capitalize(): Change string case.
+
+.str.contains("text"): Filter rows containing the text.
+
+5. Sorting a DataFrame or Series
+# Sort a column alphabetically
+oo["Athlete Name"].sort_values()
+
+# Sort the entire DataFrame by a column
+oo.sort_values("Athlete Name")
+
+# Sort descending
+oo.sort_values("Athlete Name", ascending=False)
+
+# Sort by multiple columns
+oo.sort_values(by=['Year','Athlete Name'])
+
+# Sort by multiple columns with mixed order
+oo.sort_values(by=["Year", "Event", "Medal"], ascending=[True, True, False])
+
+
+Explanation:
+
+sort_values("column"): Sort by one column.
+
+ascending=False: Sort in descending order.
+
+by=[col1, col2]: Sort by multiple columns.
+
+ascending=[True, False]: Specify sort order for each column individually.
+
+✅ Tip: Always check the first few rows with oo.head() or oo.tail() to confirm your operations worked correctly.
+
