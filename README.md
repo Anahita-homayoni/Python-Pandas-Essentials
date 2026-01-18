@@ -108,3 +108,49 @@ These methods help explore categorical data by identifying unique values, freque
 Summary:
 
 Pandas column selection is case-sensitive, so column names must be typed exactly as shown in the dataset.
+
+
+Lists and Dictionaries in Python (Used with Pandas)
+List Example
+medals = ["Gold", "Silver", "Bronze"]
+medals
+
+
+🔹 A list stores multiple values in a single variable.
+🔹 Lists are ordered and indexed (starting from 0).
+🔹 Commonly used in Pandas to represent columns, labels, or categories.
+
+Dictionary Example
+position = {
+    "First": "Gold",
+    "Second": "Silver",
+    "Third": "Bronze"
+}
+
+position
+
+
+🔹 A dictionary stores data as key–value pairs.
+🔹 Keys ("First", "Second", "Third") map to values ("Gold", "Silver", "Bronze").
+🔹 Dictionaries are often used in Pandas for mapping and replacing values.
+
+Dictionary Type
+type(position)
+
+
+🔹 Returns the data type of position → dict.
+
+Accessing a Dictionary Value
+position["First"]
+
+
+🔹 Retrieves the value associated with the key "First".
+🔹 Output: "Gold"
+
+Summary
+
+Lists store ordered collections of values.
+
+Dictionaries store labeled (key–value) data.
+
+Both are commonly used with Pandas for data transformation and mapping.
