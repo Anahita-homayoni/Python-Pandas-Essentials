@@ -67,6 +67,43 @@ To check column names:
 
 oo.columns
 
+Exploring Columns in Pandas
+oo.Year.unique()
+
+
+🔹 Returns all unique values in the Year column.
+Useful to see which years are present in the dataset.
+
+oo.Year.value_counts()
+
+
+🔹 Counts how many times each year appears.
+Useful for understanding how much data exists per year.
+
+oo.Year.value_counts(normalize=True)
+
+
+🔹 Shows the proportion (percentage) of each year instead of raw counts.
+Helpful for comparing years relative to the total dataset.
+
+oo.NOC.unique()
+
+
+🔹 Returns all unique National Olympic Committee (NOC) codes in the dataset.
+Useful to see how many countries participated.
+
+Example Use Case
+
+unique() → What values exist?
+
+value_counts() → How many times does each value occur?
+
+normalize=True → What percentage does each value represent?
+
+Summary:
+
+These methods help explore categorical data by identifying unique values, frequencies, and proportions.
+
 
 Summary:
 
