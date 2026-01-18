@@ -2052,3 +2052,6 @@ By this section, you now understand how to:
 ✅ visualise distributions
 ✅ build analytical tables
 
+
+http://matplotlib.org/stable/users/explain/colors/colormaps.html
+
