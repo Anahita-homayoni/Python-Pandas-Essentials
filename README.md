@@ -1147,3 +1147,171 @@ oo[~oo.Year.isin(years_of_interest)]
 
 This covers data types, memory optimization, functions, indexing, and best practices in pandas.
 
+Series, DataFrames, Dates, and Combining Datasets
+
+This tutorial covers creating pandas Series and DataFrames, working with dates, and combining datasets using concat and merge.
+
+1. Creating Series and DataFrames
+import pandas as pd
+
+city = ["London", "Rio", "Tokyo"]
+start_date = ["27th Jul, 2012", "5th Aug, 2016", "23rd July, 2021"]
+
+
+Create a Series:
+
+pd.Series(city)
+
+
+Create a DataFrame using Series or lists:
+
+pd.DataFrame({"City": pd.Series(city),
+              "Start Date": pd.Series(start_date)})
+
+pd.DataFrame({"City": city,
+              "Start Date": start_date})
+
+
+Create a DataFrame using zip:
+
+pd.DataFrame(zip(city, start_date), columns=["City", "Start Date"])
+
+
+Explanation:
+
+Series is a 1D labeled array, like a single column.
+
+DataFrame is a 2D labeled data structure, like a table.
+
+zip() allows combining multiple lists column-wise.
+
+2. Working with Dates
+end_date = ["12th Aug, 2012", "21-08-2016", "8th Aug, 2021"]
+
+games = pd.DataFrame(zip(city, start_date, end_date), columns=["City", "Start Date", "End Date"])
+games.dtypes
+
+
+Convert string columns to datetime:
+
+games["Start Date"] = pd.to_datetime(games["Start Date"], format='mixed')
+games["End Date"] = pd.to_datetime(games["End Date"], format='mixed')
+games["City"] = games.City.astype("string")
+games.dtypes
+
+
+Calculate duration of each event:
+
+games = games.assign(duration=games["End Date"] - games["Start Date"])
+games
+
+
+Explanation:
+
+pd.to_datetime() converts strings to datetime objects.
+
+Subtracting two datetime columns gives a timedelta object (duration).
+
+.assign() creates a new column without modifying existing ones directly.
+
+3. Combining DataFrames
+3.1 Using concat
+start = pd.DataFrame({"city": ["London", "Rio", "Tokyo"],
+                      "start_date": ["27th Jul, 2012", "5th Aug, 2016", "23rd July, 2021"]})
+
+end = pd.DataFrame({"city": ["London", "Tokyo", "Paris"],
+                    "end_date": ["12th Aug, 2012", "8th Aug, 2021", "11th Aug, 2024"]})
+
+
+Concatenate vertically (axis=0):
+
+pd.concat([start, end], axis=0)
+
+
+Concatenate horizontally (axis=1):
+
+pd.concat([start, end], axis=1)
+
+3.2 Using merge (SQL-style joins)
+
+Inner join: Only rows with matching city values:
+
+pd.merge(left=start, right=end, on="city", how="inner")
+
+
+Outer join: All rows from both DataFrames:
+
+pd.merge(left=start, right=end, on="city", how="outer")
+
+
+Left join: All rows from left, matching rows from right:
+
+pd.merge(left=start, right=end, on="city", how="left")
+
+
+Right join: All rows from right, matching rows from left:
+
+pd.merge(left=start, right=end, on="city", how="right")
+
+
+Explanation:
+
+on="city" specifies the key for joining.
+
+how= defines type of join: inner, outer, left, right.
+
+4. Combining Datasets (Olympics Example)
+
+Load 1896–2004 dataset:
+
+def preprocess(filename="olympics_1896_2004.csv"):
+    """Load and transform the Olympics dataset"""
+    ordered_medals = pd.api.types.CategoricalDtype(categories=["Bronze", "Silver", "Gold"], ordered=True)
+    dtype_mapper = {
+        "Year": "int64", "City": "string", "Sport": "string", "Discipline": "string",
+        "Athlete Name": "string", "NOC": "string", "Gender": "category",
+        "Event": "string", "Event_gender": "category", "Medal": ordered_medals
+    }
+    df = pd.read_csv(filename, skiprows=5, dtype=dtype_mapper).drop('Position', axis=1)
+    df["Event Gender"] = df["Event Gender"].astype("category")
+    return df
+
+oo = preprocess()
+oo.sample(3)
+
+
+Load 2008 dataset and align columns:
+
+new_filename = "olympics_2008.csv"
+nw = pd.read_csv(new_filename)
+nw.columns = ['City', 'Year', 'Sport', 'Discipline', 'Athlete Name', 'NOC',
+              'Gender', 'Event', 'Event Gender', 'Medal', 'Result']
+nw = nw.drop("Result", axis=1)
+nw.sample(3)
+
+
+Combine 1896–2004 with 2008:
+
+combined = pd.concat([oo, nw], axis=0)
+combined.sample(3)
+combined.dtypes
+
+
+Explanation:
+
+Always ensure columns match before concatenating.
+
+Use concat for stacking datasets vertically.
+
+Use merge if you want to join datasets based on a key column.
+
+This tutorial demonstrates how to:
+
+Create Series and DataFrames
+
+Work with dates and calculate durations
+
+Combine datasets with concat and merge
+
+Prepare real-world datasets for analysis
+
