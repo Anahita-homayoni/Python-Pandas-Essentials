@@ -1694,3 +1694,361 @@ Validated schemas
 
 A single combined Olympics dataset ready for analysis 🏅
 
+
+
+
+🟢🟢🟢 PLOTTING DATA 🟢🟢🟢
+
+Below is the same notebook structure you provided, but with:
+✅ Bigger & bold title
+✅ Much more explanation
+✅ Clear comments so you understand what each step is doing and why
+✅ Learning-focused descriptions for plotting, seaborn, groupby, and reshaping
+
+📦 Installing Libraries & Loading Data
+!pip install --quiet pandas==2.0.2
+
+import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+📌 Purpose:
+
+pandas → data handling
+
+pathlib → file checking
+
+matplotlib.pyplot → plotting graphs
+
+📥 Downloading the Datasets
+if not Path("olympics_1896_2004.csv").exists():
+  !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_1896_2004.csv
+if not Path("olympics_2008.csv").exists():
+  !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_2008.csv
+
+filename = "olympics_1896_2004.csv"
+print("Installed all of the necessary files for this section ...")
+
+📌 Purpose:
+
+Checks if the CSV files already exist
+
+Downloads them only if missing
+
+Prevents re-downloading every time the notebook runs
+
+🧹 Preprocessing Functions
+🔹 Old Olympics Data (1896–2004)
+def preprocess(filename = "olympics_1896_2004.csv"):
+  """Preparing and transforming dataframe"""
+  print(f"Preprocessing {filename} ...\n")
+
+  ordered_medals = pd.api.types.CategoricalDtype(
+      categories=["Bronze", "Silver", "Gold"], ordered=True)
+
+  dtype_mapper = {
+      "Year": "int64",
+      "City": "string",
+      "Sport": "string",
+      "Discipline": "string",
+      "Athlete Name": "string",
+      "NOC": "string",
+      "Gender": "category",
+      "Event": "string",
+      "Event_gender": "category",
+      "Medal": ordered_medals
+  }
+
+  df = (pd.read_csv(filename, skiprows=5, dtype=dtype_mapper)
+        .drop('Position', axis=1)
+  )
+
+  # Fix data types and errors
+  df["Event Gender"] = df["Event Gender"].astype("category")
+  df.loc[24676, "Gender"] = "Women"
+
+  # Standardise text format
+  df.Sport = df.Sport.str.lower()
+  df.Discipline = df.Discipline.str.lower()
+  df.Event = df.Event.str.lower()
+  df.NOC = df.NOC.str.upper()
+
+  return df
+
+📌 Why this matters:
+
+Makes medal values ordered → Bronze < Silver < Gold
+
+Fixes one wrong gender record
+
+Makes text consistent:
+
+sports/events → lowercase
+
+country codes → uppercase
+
+Drops unnecessary column (Position)
+
+🔹 2008 Olympics Data
+def preprocess_2008(filename="olympics_2008.csv"):
+  print(f"Preprocessing {filename} ...\n")
+
+  df = pd.read_csv(filename)
+  df.columns = ['City', 'Year', 'Sport', 'Discipline', 'Athlete Name', 'NOC',
+       'Gender', 'Event', 'Event Gender', 'Medal', 'Result']
+
+  df = df.drop("Result", axis=1)
+
+  # Fill missing values
+  df.City = df.City.fillna(value="Beijing")
+  df.Year = df.Year.fillna(value=2008)
+
+  # Remove empty rows and duplicates
+  df = df.dropna(subset=['Sport', 'Discipline', 'Athlete Name', 'NOC', 'Gender',
+       'Event', 'Event Gender', 'Medal'], how="all")
+  df = df.drop_duplicates()
+
+  # Standardise text
+  df.Sport = df.Sport.str.lower()
+  df.Discipline = df.Discipline.str.lower()
+  df.Event = df.Event.str.lower()
+  df.NOC = df.NOC.str.upper()
+  df.Medal = df.Medal.str.capitalize()
+
+  # Correct data types
+  df.City = df.City.astype("string")
+  df.Year = df.Year.astype(int)
+  df.Sport = df.Sport.astype("string")
+  df.Discipline = df.Discipline.astype("string")
+  df["Athlete Name"] = df["Athlete Name"].astype("string")
+  df.NOC = df.NOC.astype("string")
+  df.Gender = df.Gender.astype("category")
+  df.Event = df.Event.astype("string")
+  df['Event Gender'] = df['Event Gender'].astype("category")
+
+  medal_order = ["Bronze", "Silver", "Gold"]
+  df.Medal = pd.Categorical(df.Medal, categories=medal_order, ordered=True)
+
+  return df
+
+🔗 Combine Both Datasets
+oo = preprocess()
+nw = preprocess_2008()
+up = pd.concat([oo, nw])
+up.sample(3)
+
+📌 Purpose:
+
+Merges 1896–2004 + 2008 data
+
+Creates one full Olympics dataset: up
+
+📊 Plotting Data
+❓ Question:
+
+For the first Olympics (1896), how many events were there for each sport?
+
+🔹 Filter first Olympics
+first_games = up[up.Year == 1896]
+first_games
+
+🔹 Count events per sport
+first_games.Sport.value_counts()
+
+
+📌 This counts how many rows (events) exist for each sport.
+
+📈 Line Plot
+first_games.Sport.value_counts().plot(kind='line')
+
+📌 Meaning:
+
+Shows trend-style view of events per sport
+
+Not ideal for categories, but useful to demonstrate line plotting
+
+📊 Bar Plot
+(first_games
+ .Sport
+ .value_counts()
+ .plot(kind='bar')
+)
+
+📌 Meaning:
+
+Best graph for categorical data
+
+Shows number of events per sport clearly
+
+📊 Horizontal Bar Plot
+(first_games
+ .Sport
+ .value_counts()
+ .plot(kind='barh')
+)
+
+📌 Meaning:
+
+Same data as bar plot
+
+Easier to read long sport names
+
+🎨 Custom Colours
+(first_games
+ .Sport
+ .value_counts()
+ .plot(kind='barh', color=['blue', 'red'])
+)
+
+📌 Meaning:
+
+Custom colours improve readability
+
+Can use color lists or colormaps
+
+🧠 Why Plotting Matters
+
+Plotting helps:
+✅ identify trends
+✅ compare categories
+✅ detect outliers
+✅ communicate results visually
+✅ support data-driven decisions
+
+🎨 Working with Seaborn & Colormaps
+🔹 Filter 2008 Games
+games_2008 = up[up.Year == 2008]
+
+📊 Countplot (Medals)
+import seaborn as sns
+
+plt.figure(figsize=(5,3))
+plt.title("Medals from the 2008 games")
+sns.countplot(data=games_2008, x='Medal')
+
+
+📌 Shows number of medals by type.
+
+📊 Ordered Medals
+sns.countplot(
+    data=games_2008,
+    x='Medal',
+    order=["Gold", "Silver", "Bronze"]
+)
+
+
+📌 Ensures correct medal ranking order
+
+👫 Gender Comparison
+sns.countplot(
+    data=games_2008,
+    x='Medal',
+    order=["Gold", "Silver", "Bronze"],
+    hue='Gender'
+)
+
+
+📌 Compares male vs female medal counts
+
+🎨 Colour Palettes
+sns.countplot(
+    data=games_2008,
+    x='Medal',
+    order=["Gold", "Silver", "Bronze"],
+    hue='Gender',
+    palette='coolwarm'
+)
+
+
+📌 Uses a diverging colormap for contrast
+
+🧮 Working with groupby
+sprints = up[(up.Year == 2008) & ((up.Event == '100m') | (up.Event == '200m'))]
+
+
+📌 Filters sprint events
+
+sp = sprints.groupby(['NOC', 'Gender', 'Event'])
+
+
+📌 Groups by:
+
+Country
+
+Gender
+
+Event
+
+up.groupby("Year").size()
+
+
+📌 Counts records per year
+
+up.groupby(['Year','NOC','Medal']).size()
+
+
+📌 Counts medals by:
+
+year
+
+country
+
+medal type
+
+🔁 Reshaping Data
+sp = sprints.groupby(['NOC','Gender','Event']).size()
+
+
+📌 Creates MultiIndex Series
+
+🔄 Unstacking
+sp.unstack('Gender', fill_value=0)
+
+
+📌 Converts:
+
+index level → columns
+
+fills missing values with 0
+
+sp.unstack(['Gender', 'Event'], fill_value=0)
+
+
+📌 Creates a table format (pivot-style)
+
+🔄 Stacking Back
+sprints_table = sp.unstack(level=1, fill_value=0).unstack(level=1, fill_value=0)
+sprints_NOC = sprints_table.stack("Gender")
+
+
+📌 Converts wide format → long format again
+
+📍 Data Access Examples
+sprints_NOC.loc[('JAM', 'Men'), :]
+
+
+📌 Gets all sprint results for Jamaica men
+
+sprints_NOC.loc[('JAM', 'Men'), '100m']
+
+
+📌 Gets only 100m sprint medals for Jamaican men
+
+🎯 Learning Outcomes
+
+By this section, you now understand how to:
+
+✅ plot with pandas
+✅ plot with matplotlib
+✅ plot with seaborn
+✅ use bar, line, horizontal bar plots
+✅ use colormaps
+✅ group data
+✅ reshape data
+✅ stack / unstack
+✅ use MultiIndex
+✅ analyse categories
+✅ compare groups
+✅ visualise distributions
+✅ build analytical tables
+
