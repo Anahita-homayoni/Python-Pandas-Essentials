@@ -1315,3 +1315,173 @@ Combine datasets with concat and merge
 
 Prepare real-world datasets for analysis
 
+
+
+Handling Missing Data and Duplicates
+
+This tutorial covers techniques to detect, fill, remove missing data and handle duplicate rows in pandas DataFrames.
+
+1. Loading the Dataset
+import pandas as pd
+from pathlib import Path
+
+# Ensure data files are available
+if not Path("olympics_1896_2004.csv").exists():
+    !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_1896_2004.csv
+if not Path("olympics_2008.csv").exists():
+    !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_2008.csv
+
+filename = "olympics_1896_2004.csv"
+
+
+Preprocessing function for 2008 Olympics:
+
+def preprocess_2008(filename="olympics_2008.csv"):
+    """Load 2008 Olympics data, fix missing values, and drop unnecessary columns"""
+    df = pd.read_csv(filename)
+    df.columns = ['City', 'Year', 'Sport', 'Discipline', 'Athlete Name', 'NOC',
+                  'Gender', 'Event', 'Event Gender', 'Medal', 'Result']
+    df = df.drop("Result", axis=1)
+    df.City = df.City.fillna(value="Beijing")  # Fill missing city names
+    df.Year = df.Year.fillna(value=2008)       # Fill missing years
+    return df
+
+nw = preprocess_2008()
+nw.sample(3)
+
+2. Detecting Missing Data
+
+Check for missing values in a column:
+
+nw.City.isna()
+nw.City.isna().sum()   # Total missing values
+
+
+View rows with missing data:
+
+nw[nw.City.isna()]
+
+
+Explanation:
+
+.isna() returns a Boolean Series (True if value is missing).
+
+.sum() counts how many missing values exist.
+
+3. Filling Missing Data
+
+Fill missing values using .fillna():
+
+nw.City = nw.City.fillna(value="Beijing")
+nw.Year = nw.Year.fillna(value=2008)
+nw.info()
+
+
+Explanation:
+
+.fillna(value=...) replaces all NaN with a specified value.
+
+Useful for categorical or numeric columns where a default makes sense.
+
+4. Removing Missing Data
+
+Drop rows where all values are missing:
+
+nw.dropna(how="all", axis=0)
+
+
+Drop rows where any value is missing:
+
+nw.dropna(how="any", axis=0)
+
+
+Drop rows missing in specific columns:
+
+nw = nw.dropna(subset=['Sport', 'Discipline', 'Athlete Name', 'NOC', 
+                        'Gender', 'Event', 'Event Gender', 'Medal'], how="all")
+nw.info()
+
+
+Explanation:
+
+how="all" drops rows if all specified columns are missing.
+
+how="any" drops rows if any specified column is missing.
+
+subset allows targeting specific columns.
+
+5. Detecting Duplicates
+
+Check for duplicates:
+
+nw.duplicated()
+nw.duplicated().sum()  # Total duplicated rows
+nw.loc[nw.duplicated(), :]
+
+
+Explanation:
+
+.duplicated() returns a Boolean Series marking duplicate rows.
+
+.sum() counts total duplicates.
+
+6. Removing Duplicates
+
+Remove duplicate rows:
+
+nw = nw.drop_duplicates()
+nw.shape
+
+
+Detect duplicates based on specific columns:
+
+athlete_multiple_events = nw.duplicated(subset=['Athlete Name', 'NOC', 'Gender'])
+nw.loc[athlete_multiple_events, :].sort_values("Athlete Name")
+
+
+Explanation:
+
+subset specifies which columns define duplicates.
+
+Sorting helps review duplicates for specific athletes/events.
+
+Example: Check a specific athlete:
+
+nw.loc[nw["Athlete Name"] == "ZOU, Kai"]
+
+7. Full Preprocessing Function with Missing Data and Duplicates Handling
+def preprocess_2008(filename="olympics_2008.csv"):
+    """Load 2008 Olympics dataset, fill missing values, drop empty rows and duplicates"""
+    df = pd.read_csv(filename)
+    df.columns = ['City', 'Year', 'Sport', 'Discipline', 'Athlete Name', 'NOC',
+                  'Gender', 'Event', 'Event Gender', 'Medal', 'Result']
+    df = df.drop("Result", axis=1)
+    df.City = df.City.fillna(value="Beijing")
+    df.Year = df.Year.fillna(value=2008)
+    df = df.dropna(subset=['Sport', 'Discipline', 'Athlete Name', 'NOC', 
+                            'Gender', 'Event', 'Event Gender', 'Medal'], how="all")
+    df = df.drop_duplicates()
+    return df
+
+nw = preprocess_2008()
+nw.sample(3)
+
+
+Explanation:
+
+Step 1: Fill missing values for essential columns.
+
+Step 2: Drop rows where all key columns are missing.
+
+Step 3: Remove duplicates for clean analysis.
+
+✅ Summary of Best Practices:
+
+Always inspect missing values with .isna() and .info().
+
+Fill or drop missing values depending on context.
+
+Use .duplicated() to identify duplicates before removing.
+
+Chain operations in a preprocessing function for reproducibility.
+
