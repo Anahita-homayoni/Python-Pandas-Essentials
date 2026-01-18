@@ -236,3 +236,104 @@ df.columns = [...] → rename all columns at once
 names= in read_csv() → rename columns while loading data
 
 Renaming columns improves readability and makes data analysis easier.
+
+
+
+Remove a Series (Column) or Row in Pandas
+
+This section explains how to remove columns and rows from a Pandas DataFrame using the Olympic dataset.
+
+1️⃣ Load the dataset
+import pandas as pd
+
+filename = "olympics_1896_2004.csv"
+oo = pd.read_csv(filename, skiprows=5)
+
+oo.sample(3)
+
+
+🔹 skiprows=5 skips metadata rows
+🔹 sample(3) displays 3 random rows
+
+2️⃣ Remove a column (Series) using drop()
+oo.drop('Position', axis=1)
+
+
+🔹 Removes the Position column
+🔹 axis=1 → column
+🔹 This does not modify the original DataFrame unless assigned
+
+Save the change
+oo = oo.drop('Position', axis=1)
+
+3️⃣ Remove a column while reading the file
+oo = pd.read_csv(filename, skiprows=5).drop('Position', axis=1)
+oo.sample(3)
+
+
+🔹 Combines reading + cleaning in one line
+🔹 Useful for cleaner code
+
+4️⃣ Method chaining (recommended style)
+oo = (
+    pd.read_csv(filename, skiprows=5)
+      .drop('Position', axis=1)
+)
+oo.sample(3)
+
+
+🔹 Improves readability
+🔹 Common in professional Pandas code
+
+5️⃣ Remove a column in place
+oo = pd.read_csv(filename, skiprows=5)
+oo.drop('Position', axis=1, inplace=True)
+
+
+🔹 inplace=True modifies the DataFrame directly
+⚠️ Cannot be chained with other methods
+
+6️⃣ Remove rows by index
+Remove a single row
+oo = (
+    pd.read_csv(filename, skiprows=5)
+      .drop(2, axis=0)
+)
+oo.head(3)
+
+
+🔹 Removes row with index 2
+🔹 axis=0 → row
+
+Remove multiple rows
+oo = (
+    pd.read_csv(filename, skiprows=5)
+      .drop([0, 1, 3], axis=0)
+)
+oo.head(3)
+
+
+🔹 Removes rows with indices 0, 1, and 3
+
+7️⃣ Summary of drop()
+Task	Code
+Drop column	drop('col', axis=1)
+Drop row	drop(index, axis=0)
+Save change	assign back or use inplace=True
+8️⃣ Useful Pandas functions (overview)
+pd.merge?
+pd.concat?
+oo.groupby?
+
+
+🔹 merge() → combine DataFrames using keys (SQL-style joins)
+🔹 concat() → stack DataFrames vertically or horizontally
+🔹 groupby() → group data for aggregation (sum, mean, count)
+
+Key Takeaways
+
+Use axis=1 for columns, axis=0 for rows
+
+drop() does not modify data unless assigned or inplace=True
+
+Method chaining makes code cleaner and more readable
