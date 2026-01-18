@@ -39,3 +39,35 @@ or
 df = pd.read_excel('your_file_name.xlsx', sheet_name=0) # first sheet
 
 🔍 Check sheet names pd.ExcelFile('your_file_name.xlsx').sheet_names
+
+
+Selecting Columns in Pandas
+import pandas as pd
+
+oo = pd.read_csv(filename, skiprows=5)
+
+# View random rows
+oo.sample(3)
+
+# Select a single column
+oo["Discipline"]
+
+
+🔹 Column names in Pandas are case-sensitive.
+This means:
+
+oo["Discipline"]   # ✅ works
+oo["discipline"]   # ❌ KeyError
+oo["DISCIPLINE"]   # ❌ KeyError
+
+
+🔹 The column name must match exactly as it appears in the DataFrame.
+
+To check column names:
+
+oo.columns
+
+
+Summary:
+
+Pandas column selection is case-sensitive, so column names must be typed exactly as shown in the dataset.
