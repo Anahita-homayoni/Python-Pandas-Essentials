@@ -1485,3 +1485,212 @@ Use .duplicated() to identify duplicates before removing.
 
 Chain operations in a preprocessing function for reproducibility.
 
+
+
+🚀 VALIDATING AND PREPARING OLYMPICS DATA USING PANDAS
+
+This section demonstrates how to clean, validate, standardize, and combine datasets using pandas. The goal is to ensure that historical Olympics data (1896–2004) and modern data (2008) follow the same structure, rules, and data types before merging them.
+
+📦 INSTALLING AND IMPORTING DEPENDENCIES
+!pip install --quiet pandas==2.0.2
+
+
+Installs a specific pandas version to ensure consistent behavior.
+
+import pandas as pd
+from pathlib import Path
+
+
+pandas is used for data manipulation.
+
+Path helps check if files already exist before downloading.
+
+📥 DOWNLOADING THE DATASETS
+if not Path("olympics_1896_2004.csv").exists():
+  !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_1896_2004.csv
+
+if not Path("olympics_2008.csv").exists():
+  !wget https://github.com/jonfernandes/pandas_essential/raw/main/olympics_2008.csv
+
+
+Downloads datasets only if they are missing.
+
+Prevents redundant downloads.
+
+🧹 PREPROCESSING HISTORICAL OLYMPICS DATA (1896–2004)
+✅ Why Preprocessing Is Needed
+
+Fix incorrect values
+
+Enforce consistent data types
+
+Standardize text formatting
+
+Prepare data for validation and merging
+
+🔧 Preprocessing Function for 1896–2004
+def preprocess(filename="olympics_1896_2004.csv"):
+
+🔹 Step 1: Define Ordered Medal Categories
+ordered_medals = pd.api.types.CategoricalDtype(
+    categories=["Bronze", "Silver", "Gold"], ordered=True
+)
+
+
+Ensures medals have a logical ranking order.
+
+🔹 Step 2: Define Column Data Types
+dtype_mapper = {
+  "Year": "int64",
+  "City": "string",
+  "Sport": "string",
+  "Discipline": "string",
+  "Athlete Name": "string",
+  "NOC": "string",
+  "Gender": "category",
+  "Event": "string",
+  "Event_gender": "category",
+  "Medal": ordered_medals
+}
+
+
+Prevents mixed or incorrect data types.
+
+Improves performance and consistency.
+
+🔹 Step 3: Read and Clean the Dataset
+df = (pd.read_csv(filename, skiprows=5, dtype=dtype_mapper)
+      .drop('Position', axis=1))
+
+
+skiprows=5 removes metadata rows.
+
+Drops unnecessary columns.
+
+🔹 Step 4: Fix Data Errors
+df.loc[24676, "Gender"] = "Women"
+
+
+Corrects a known incorrect value.
+
+🔹 Step 5: Standardize Text Formatting
+df.Sport = df.Sport.str.lower()
+df.Discipline = df.Discipline.str.lower()
+df.Event = df.Event.str.lower()
+df.NOC = df.NOC.str.upper()
+
+
+Ensures consistent text comparisons across datasets.
+
+📊 Result
+oo = preprocess()
+oo.dtypes
+
+
+Data is clean, validated, and standardized.
+
+🧹 PREPROCESSING OLYMPICS 2008 DATA
+
+The 2008 dataset has a different structure, so it needs extra cleaning.
+
+🔧 Preprocessing Function for 2008 Data
+🔹 Rename Columns
+df.columns = [
+ 'City','Year','Sport','Discipline','Athlete Name','NOC',
+ 'Gender','Event','Event Gender','Medal','Result'
+]
+
+
+Matches column names with the historical dataset.
+
+🔹 Remove Unnecessary Columns
+df = df.drop("Result", axis=1)
+
+🔹 Fill Missing Values
+df.City = df.City.fillna("Beijing")
+df.Year = df.Year.fillna(2008)
+
+
+Ensures no missing key values.
+
+🔹 Remove Empty Rows and Duplicates
+df = df.dropna(how="all")
+df = df.drop_duplicates()
+
+🔹 Standardize Text Formatting
+df.Sport = df.Sport.str.lower()
+df.Discipline = df.Discipline.str.lower()
+df.Event = df.Event.str.lower()
+df.NOC = df.NOC.str.upper()
+df.Medal = df.Medal.str.capitalize()
+
+🔹 Convert Data Types
+df.Gender = df.Gender.astype("category")
+df['Event Gender'] = df['Event Gender'].astype("category")
+df.Medal = pd.Categorical(
+    df.Medal,
+    categories=["Bronze", "Silver", "Gold"],
+    ordered=True
+)
+
+
+Aligns data types with the historical dataset.
+
+📊 Result
+nw = preprocess_2008()
+nw.dtypes
+
+
+2008 data is now fully compatible.
+
+🔍 DATA VALIDATION USING ASSERTIONS
+✅ Why Validate?
+
+Ensures both datasets share the same rules
+
+Prevents silent data corruption
+
+✔️ Validate Categories
+assert sorted(nw["Event Gender"].unique()) == sorted(oo["Event Gender"].unique())
+assert sorted(nw.Gender.unique()) == sorted(oo.Gender.unique())
+assert sorted(nw.Medal.unique()) == sorted(oo.Medal.unique())
+
+
+Confirms both datasets use the same categories.
+
+🎉 Validation Passed
+print("Passes all tests ...")
+
+🔗 COMBINING BOTH DATASETS
+
+Once validated, the datasets can be safely merged.
+
+up = pd.concat([oo, nw])
+
+
+Stacks rows vertically.
+
+Preserves data types and categories.
+
+📊 Final Dataset
+up.sample(3)
+up.dtypes
+
+
+✔ Unified
+✔ Clean
+✔ Validated
+✔ Analysis-ready
+
+✅ FINAL OUTCOME
+
+You now have:
+
+Clean historical data (1896–2004)
+
+Clean modern data (2008)
+
+Validated schemas
+
+A single combined Olympics dataset ready for analysis 🏅
+
