@@ -397,3 +397,138 @@ Use axis=1 for columns, axis=0 for rows
 drop() does not modify data unless assigned or inplace=True
 
 Method chaining makes code cleaner and more readable
+
+
+
+🔷 Rename a Series (or Column) in Pandas
+
+This section explains multiple ways to rename columns in a Pandas DataFrame using the Olympics 1896–2004 dataset.
+
+📥 Load the Dataset
+oo = pd.read_csv(filename, skiprows=5)
+oo.sample(3)
+
+
+read_csv() loads the CSV file into a DataFrame
+
+skiprows=5 skips metadata rows at the top of the file
+
+sample(3) displays 3 random rows to preview the data
+
+🗺️ Create a Mapper Dictionary
+mapper = {
+    "Athlete Name": "Athlete_Name",
+    "Event Gender": "Event_Gender"
+}
+
+
+A dictionary where:
+
+keys = old column names
+
+values = new column names
+
+Used to rename specific columns cleanly
+
+❓ Explore the rename() Method
+oo.rename?
+
+
+Shows documentation for the rename() function
+
+Useful for learning parameters and usage
+
+✏️ Rename Columns (Without Saving)
+oo.rename(columns=mapper)
+
+
+Renames columns temporarily
+
+Original DataFrame remains unchanged
+
+💾 Rename Columns and Save Changes
+oo = oo.rename(columns=mapper)
+oo.sample(3)
+
+
+Assigning back to oo saves the changes
+
+Column names are now permanently updated
+
+⚡ Rename While Reading the File
+oo = pd.read_csv(filename, skiprows=5).rename(columns=mapper)
+oo.sample(3)
+
+
+Combines reading + renaming in one line
+
+Cleaner and more efficient code
+
+🧩 Inline Dictionary Rename
+oo = pd.read_csv(filename, skiprows=5)
+oo = oo.rename(columns={
+    "Athlete Name": "Athlete_Name",
+    "Event Gender": "Event_Gender"
+})
+oo.sample(3)
+
+
+Same result as using a mapper dictionary
+
+Written directly inside rename()
+
+🔍 View Column Names
+oo = pd.read_csv(filename, skiprows=5)
+oo.columns
+
+
+Displays all column names
+
+Useful before renaming or selecting columns
+
+🏷️ Rename All Columns at Once
+column_names = [
+    'Year', 'City', 'Sport', 'Discipline', 'Athlete_Name',
+    'NOC', 'Gender', 'Event', 'Event_Gender', 'Medal', 'Position'
+]
+
+oo.columns = column_names
+oo.sample(3)
+
+
+Replaces all column names
+
+⚠️ Number of names must exactly match number of columns
+
+🧾 Set Column Names While Loading Data
+oo = pd.read_csv(filename, skiprows=5, names=column_names)
+oo.head()
+
+
+Assigns custom column names during import
+
+Pandas treats all rows as data
+
+🧠 Use Custom Names but Keep Header Row
+oo = pd.read_csv(
+    filename,
+    skiprows=5,
+    names=column_names,
+    header=0
+)
+oo.head()
+
+
+header=0 tells Pandas to ignore the original header
+
+Useful when replacing existing column names
+
+✅ Key Takeaways
+
+rename(columns=...) → best for renaming specific columns
+
+df.columns = [...] → rename all columns at once
+
+names= in read_csv() → rename columns while loading
+
+Renaming columns improves readability and consistency
