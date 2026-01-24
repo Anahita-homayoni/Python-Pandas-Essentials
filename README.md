@@ -2098,3 +2098,45 @@ Feature	iloc	loc
 Indexing type	Integer position	Label-based
 Includes end index	❌ No	✅ Yes
 
+
+iris.to_csv() in Pandas
+Purpose
+
+The to_csv() function in pandas is used to export a DataFrame to a CSV (Comma-Separated Values) file.
+
+Example Code
+iris.to_csv("iris.csv")
+
+Explanation
+
+iris → a pandas DataFrame (for example, the Iris dataset)
+
+to_csv() → a pandas method that writes the DataFrame to a CSV file
+
+"iris.csv" → the name of the output file
+
+This line saves the entire contents of the iris DataFrame into a file called iris.csv in the current working directory.
+
+Common Parameters
+iris.to_csv("iris.csv", index=False)
+
+Parameter	Description
+index=False	Prevents pandas from writing row indices to the CSV
+sep=','	Specifies the delimiter (comma by default)
+header=True	Writes column names (default behavior)
+encoding='utf-8'	Sets file encoding
+Example with Options
+iris.to_csv("iris.csv", index=False, encoding="utf-8")
+
+
+✔ Exports data
+✔ Removes row index
+✔ Uses UTF-8 encoding
+
+Why Use to_csv()?
+
+Share data easily
+
+Store processed datasets
+
+Load data into Excel, databases, or other tools
