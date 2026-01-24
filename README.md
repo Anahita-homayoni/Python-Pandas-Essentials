@@ -2055,3 +2055,46 @@ By this section, you now understand how to:
 
 http://matplotlib.org/stable/users/explain/colors/colormaps.html
 
+What iloc does
+
+iloc lets you access data using row and column indices, starting from 0.
+
+Syntax
+df.iloc[row_index, column_index]
+
+Common uses
+
+1. Select a single row
+
+df.iloc[0]      # first row
+
+
+2. Select a single column
+
+df.iloc[:, 1]   # second column
+
+
+3. Select specific rows and columns
+
+df.iloc[0:3, 1:4]   # rows 0–2, columns 1–3
+
+
+4. Select multiple rows
+
+df.iloc[[0, 2, 4]]
+
+Key points
+
+Uses integer positions, not labels
+
+Indexing starts at 0
+
+Similar to Python list slicing
+
+End index is excluded (like 0:3 → 0,1,2)
+
+iloc vs loc
+Feature	iloc	loc
+Indexing type	Integer position	Label-based
+Includes end index	❌ No	✅ Yes
+
