@@ -2137,6 +2137,58 @@ Why Use to_csv()?
 
 Share data easily
 
+
+
+
+Pandas Display Option: pd.set_option('display.max_columns', 2)
+Overview
+
+The pandas function pd.set_option() is used to customize how DataFrames are displayed in the output.
+The option display.max_columns controls the maximum number of columns shown when a DataFrame is printed.
+
+Syntax
+pd.set_option('display.max_columns', 2)
+
+Explanation
+
+pd.set_option() → Sets a pandas configuration option
+
+'display.max_columns' → Specifies how many columns can be displayed
+
+2 → Limits the display to 2 columns only
+
+If the DataFrame contains more than 2 columns, pandas will hide the extra columns and replace them with ....
+
+Example
+import pandas as pd
+
+pd.set_option('display.max_columns', 2)
+
+df = pd.DataFrame({
+    'Name': ['A', 'B'],
+    'Age': [20, 21],
+    'City': ['NY', 'LA']
+})
+
+print(df)
+
+Output
+  Name  ...  City
+0    A  ...   NY
+1    B  ...   LA
+
+Why Use This Option?
+
+Improves readability for wide DataFrames
+
+Keeps notebook or console output clean
+
+Useful for debugging and presentations
+
+Reset to Default
+pd.reset_option('display.max_columns')
+
+
 Store processed datasets
 
 Load data into Excel, databases, or other tools
